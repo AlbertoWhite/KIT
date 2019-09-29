@@ -73,7 +73,7 @@
         <entry file="file://$PROJECT_DIR$/src/Alice/Main.java">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="221">
-              <caret line="13" column="0" lean-forward="true" selection-start-line="13" selection-start-column="0" selection-end-line="13" selection-end-column="0" />
+              <caret line="13" column="0" lean-forward="false" selection-start-line="13" selection-start-column="0" selection-end-line="13" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -388,12 +388,12 @@
       <workItem from="1569659891542" duration="7065000" />
       <workItem from="1569680923402" duration="5098000" />
       <workItem from="1569691983616" duration="675000" />
-      <workItem from="1569692822660" duration="2000" />
+      <workItem from="1569692822660" duration="323000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="55557000" />
+    <option name="totallyTimeSpent" value="55878000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
@@ -801,7 +801,7 @@
     <entry file="file://$PROJECT_DIR$/src/Alice/Main.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="221">
-          <caret line="13" column="0" lean-forward="true" selection-start-line="13" selection-start-column="0" selection-end-line="13" selection-end-column="0" />
+          <caret line="13" column="0" lean-forward="false" selection-start-line="13" selection-start-column="0" selection-end-line="13" selection-end-column="0" />
           <folding />
         </state>
       </provider>
