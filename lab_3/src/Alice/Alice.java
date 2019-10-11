@@ -29,18 +29,7 @@ public class Alice extends ClientWindow{
                         break;
                     }
                 }
-               // secretKeys.clear();
-                sizePublicKeys = tempKeys.size();
-
-             /*   for (String s : tempKeys.keySet()) {
-
-                    secretKeys.put(s, algorithms.degreeByMod(tempKeys.get(s), a, KriptoAlgorithms.p));
-                    if(s.equalsIgnoreCase(name))
-                        continue;
-                    System.out.println("(secret)" + s + " : " + secretKeys.get(s));
-                }
-*/
-
+              sizePublicKeys = tempKeys.size();
             }
             Thread.sleep(500);
         }

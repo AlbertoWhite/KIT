@@ -110,43 +110,20 @@ public class KriptoAlgorithms {
     }
     public String code(Long message, Long publicKey)
     {
-        //byte[] bytes = message.getBytes();
         String secretMessage = "";
         Long k = Long.valueOf(getRandom(1l, (p - 2l)));
         Long r = degreeByMod(g, k, p);
         Long e = degreeByMod(message * degreeByMod(publicKey, k, p), 1l, p);
-        System.out.println("in code: pK = " + publicKey);
-        /*
-        for(int i = 0; i < bytes.length; i ++)
-        {
-            Long temp = bytes[i] + secretKey;
-            secretMessage += temp.toString() + ".";
-        }
-        */
         secretMessage = r.toString() + "." + e.toString();
-       // System.out.println("secret msg:" + secretMessage + ".");
+        //System.out.println("secret msg:" + secretMessage);
         return secretMessage;
     }
 
     public String decode(String message, Long secretKey)
     {
-        //String nameTo = temp.substring(temp.lastIndexOf(":") + 1, temp.lastIndexOf("->"));
         Long r = Long.parseLong(message.substring(0, message.lastIndexOf(".")));
         Long e = Long.parseLong(message.substring(message.lastIndexOf(".") + 1, message.length()));
-        String openMessage = "";
-        //String tempMessage = message;
-/*
-        while ((tempMessage.length() > 1))
-        {
-            Long code = Long.parseLong(tempMessage.substring(0, tempMessage.indexOf(".")));
-            code -= secretKey;
-            int tmp = code.intValue();
-            openMessage += (char)tmp;
-            String tmp1 = tempMessage.substring(tempMessage.indexOf(".") + 1);
-            tempMessage = tmp1;
-        }*/
         Long msg = degreeByMod(e * degreeByMod(r, p - 1 - secretKey, p), 1l, p);
-        System.out.println("open msg:" + msg);
         return  msg.toString();
     }
 
@@ -160,5 +137,36 @@ public class KriptoAlgorithms {
         {
             return false;
         }
+    }
+
+    public String codeBytes(String message, Long publicKey)
+    {
+        byte[] bytes = message.getBytes();
+        String secretMessage = "D";
+        for(int i = 0; i < bytes.length; i ++)
+        {
+            String temp = "" + bytes[i];
+            String tmpString = code(Long.parseLong(temp), publicKey);
+            secretMessage += tmpString + "|";
+        }
+        return secretMessage;
+    }
+    public String decodeBytes(String message, Long secretKey)
+    {
+        String openMessage = "";
+        String msg = message.substring(1, message.length()); // delete "D"
+        String temp = "";
+        while(msg.length() > 1)
+        {
+            temp = msg.substring(0, msg.indexOf("|"));
+            Integer codeS = Integer.parseInt(decode(temp, secretKey));
+            int tmp = codeS.intValue();
+            openMessage += (char)tmp;
+
+            String tmp1 = msg.substring(temp.length() + 1, msg.length());
+            msg = tmp1;
+        }
+
+        return openMessage;
     }
 }

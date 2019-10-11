@@ -30,7 +30,6 @@ public class ClientWindow extends JFrame {
     private String clientName = "";
     private boolean flag = false;
     protected HashMap<String, Long> tempKeys = new HashMap<>();
-    //protected HashMap<String, Long> secretKeys = new HashMap<>();
     protected boolean flagKeysIsReady = false;
     protected Long secretC;
     public String getClientName() {
@@ -65,11 +64,7 @@ public class ClientWindow extends JFrame {
         if (!flag)// flag = true if we cant connected with server->need to close all
         {
             clientName = name;
-            outMessage.println("##save##name##");
-            outMessage.flush();
-            outMessage.println(clientName);
-            outMessage.flush();
-
+            sendSystemInfo("##save##name##", clientName);
             // Задаём настройки элементов на форме
             setBounds(600, 300, 600, 500);
             setTitle("Client");
@@ -79,7 +74,6 @@ public class ClientWindow extends JFrame {
             jtaTextAreaMessage.setLineWrap(true);
             JScrollPane jsp = new JScrollPane(jtaTextAreaMessage);
             add(jsp, BorderLayout.CENTER);
-            // label, который будет отражать количество клиентов в чате
             JLabel jlNumberOfClients = new JLabel("Количество клиентов в чате: ");
             add(jlNumberOfClients, BorderLayout.NORTH);
 
@@ -94,9 +88,6 @@ public class ClientWindow extends JFrame {
 
             jtfMessage = new JTextField("Введите ваше сообщение: ");
             bottomPanel.add(jtfMessage, BorderLayout.NORTH);
-
-          //  JButton jbShowMessage = new JButton("Показать историю сообщений");
-          //  bottomPanel.add(jbShowMessage, BorderLayout.WEST);
             JButton jbListofUsers = new JButton("Список участников");
             namePanel.add(jbListofUsers, BorderLayout.SOUTH);
 
@@ -107,16 +98,19 @@ public class ClientWindow extends JFrame {
                 public void actionPerformed(ActionEvent e) {
                     // если имя клиента, и сообщение непустые, то отправляем сообщение
                     if (!jtfMessage.getText().trim().isEmpty() && (!clientName.isEmpty() && flag)) {//flag = true if sms was written once -> sms != введите sms
-                        //sendMsg();
                         String message =  jtfMessage.getText();
-                        if(kriptoAlgorithms.isDigit(message)) {
+                        if((kriptoAlgorithms.isDigit(message)) && (Long.parseLong(message) <= KriptoAlgorithms.p)) {
                             sendCode();
-                            flag = true;
-                            jtfMessage.grabFocus();
-                            jtaTextAreaMessage.append(clientName + ":" + message);
-                            // добавляем строку перехода
-                            jtaTextAreaMessage.append("\n");
                         }
+                        else
+                        {
+                            sendCharCode();
+                        }
+                        flag = true;
+                        jtfMessage.grabFocus();
+                        jtaTextAreaMessage.append(clientName + ":" + message);
+                        // добавляем строку перехода
+                        jtaTextAreaMessage.append("\n");
                     }
                 }
             });
@@ -127,14 +121,6 @@ public class ClientWindow extends JFrame {
                     outMessage.flush();
                 }
             });
-           /* jbShowMessage.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    outMessage.println("##getlist##messages##");
-                    outMessage.flush();
-                }
-            });
-*/
             // при фокусе поле сообщения очищается
             jtfMessage.addFocusListener(new FocusAdapter() {
                 @Override
@@ -160,10 +146,7 @@ public class ClientWindow extends JFrame {
                                 }
                                 else if (inMes.equalsIgnoreCase("##ping##"))
                                 {
-                                    outMessage.println("##ping##answer##");
-                                    outMessage.flush();
-                                    outMessage.println(clientName);
-                                    outMessage.flush();
+                                    sendSystemInfo("##ping##answer##", clientName);
                                 }
                                 else {
                                         if(inMes.equalsIgnoreCase("Public keys:")) // keys
@@ -214,9 +197,18 @@ public class ClientWindow extends JFrame {
                                                String nameTo = temp.substring(temp.lastIndexOf(":") + 1, temp.lastIndexOf("->"));
                                                String msg = temp.substring(temp.lastIndexOf("->") + 2, temp.length());
 
-                                               if((nameTo.equalsIgnoreCase(clientName))&&(!nameFrom.equalsIgnoreCase(nameTo))) { // if message for me from smb
+                                               if((nameTo.equalsIgnoreCase(clientName))&&(!nameFrom.equalsIgnoreCase(nameTo)))
+                                               {     // if message for me from smb
                                                    System.out.println("from:" + nameFrom + ", to:" + nameTo + ", msg:" + msg);
-                                                   String decodedMsg = kriptoAlgorithms.decode(msg, secretC);
+                                                   String decodedMsg = "";
+                                                   if(msg.lastIndexOf("D") == 0)
+                                                   {
+                                                       decodedMsg = kriptoAlgorithms.decodeBytes(msg, secretC);
+                                                   }
+                                                   else
+                                                   {
+                                                       decodedMsg = kriptoAlgorithms.decode(msg, secretC);
+                                                   }
                                                    System.out.println(decodedMsg);
                                                    jtaTextAreaMessage.append(nameFrom + ":" + decodedMsg);
                                                    // добавляем строку перехода
@@ -263,43 +255,40 @@ public class ClientWindow extends JFrame {
             setVisible(true);
         }
     }
+    public void sendCharCode()
+    {
+        String message = jtfMessage.getText();
+        for (String key : tempKeys.keySet()) {
+            String secretMessage = kriptoAlgorithms.codeBytes(message, tempKeys.get(key));
+            System.out.println("send charCode: " + key + ": " + secretMessage);
+            send(key, secretMessage);
+        }
+    }
     // отправка сообщения
     public void sendCode()
     {
             String message = jtfMessage.getText();
             Long messageLong = Long.parseLong(message);
             for (String key : tempKeys.keySet()) {
-                String secretMessage = kriptoAlgorithms.code(messageLong, tempKeys.get(key));// for himself?
-                // формируем сообщение для отправки на сервер
-                String messageStr = "." + clientName + ":" + key + "->" + secretMessage;
-                outMessage.println(messageStr);
-                outMessage.flush();
-                jtfMessage.setText("");
+                String secretMessage = kriptoAlgorithms.code(messageLong, tempKeys.get(key));
+                send(key, secretMessage);
         }
     }
-    public void sendMsg(String message) {
-        // формируем сообщение для отправки на сервер
-        String messageStr = "##public##key##";
-        // отправляем сообщение
-        outMessage.println(messageStr);
-        outMessage.flush();
-        outMessage.println(clientName + ":" + message);
-        outMessage.flush();
-    }
-    // отправка сообщения
- /*   public void sendCode(Long degree, String msg)
+    private void send(String key, String secretMessage)
     {
-        Long message = Long.parseLong(msg);
-        Long codeMessage = kriptoAlgorithms.degreeByMod(message, degree, KriptoAlgorithms.p);
-        String secretMessage = codeMessage.toString();// kriptoAlgorithms.code(message, secretKeys.get(key));// for himself?
-        // формируем сообщение для отправки на сервер
-        String messageStr = "." + clientName + ":" + secretMessage;
-        System.out.println(messageStr);
+        String messageStr = "." + clientName + ":" + key + "->" + secretMessage;
         outMessage.println(messageStr);
         outMessage.flush();
         jtfMessage.setText("");
     }
-    */
+
+    public void sendMsg(String message) {
+        // формируем сообщение для отправки на сервер
+        String messageStr = "##public##key##";
+        // отправляем сообщение
+        sendSystemInfo(messageStr, clientName + ":" + message);
+    }
+
    public void updatePublicKeys()
    {
        flagKeysIsReady = false;
@@ -307,5 +296,11 @@ public class ClientWindow extends JFrame {
        outMessage.flush();
 
    }
+   private void sendSystemInfo(String message1, String message2)
+   {
+       outMessage.println(message1);
+       outMessage.flush();
+       outMessage.println(message2);
+       outMessage.flush();
+   }
 }
-
