@@ -1,17 +1,17 @@
-
 package Alice;
 import clientServer.ClientWindow;
-import kripthography.KriptoAlgorithms;
+import cryptography.CryptoAlgorithms;
 
 public class Alice extends ClientWindow{
     private Long a;
     private Integer sizePublicKeys = 0;
-    private kripthography.KriptoAlgorithms algorithms = new kripthography.KriptoAlgorithms();
+    private CryptoAlgorithms algorithms = new CryptoAlgorithms();
+
     Alice(String name) throws InterruptedException {
         super(name);
         System.out.println("i'm "+ name);
         a = Long.valueOf(algorithms.getRandom(0, 10000));
-        Long A = algorithms.degreeByMod(KriptoAlgorithms.g, a, KriptoAlgorithms.p);
+        Long A = algorithms.degreeByMod(CryptoAlgorithms.g, a, CryptoAlgorithms.p);
         super.sendMsg(A.toString());
         while (true) {
 
@@ -34,7 +34,7 @@ public class Alice extends ClientWindow{
 
                 for (String s : tempKeys.keySet()) {
 
-                    secretKeys.put(s, algorithms.degreeByMod(tempKeys.get(s), a, KriptoAlgorithms.p));
+                    secretKeys.put(s, algorithms.degreeByMod(tempKeys.get(s), a, CryptoAlgorithms.p));
                     if(s.equalsIgnoreCase(name))
                         continue;
                     System.out.println("(secret)" + s + " : " + secretKeys.get(s));

@@ -1,6 +1,6 @@
 package clientServer;
 
-import kripthography.KriptoAlgorithms;
+import cryptography.CryptoAlgorithms;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,7 +19,7 @@ public class ClientWindow extends JFrame {
     private Socket clientSocket;
     // входящее сообщение
     private Scanner inMessage;
-    private KriptoAlgorithms kriptoAlgorithms = new KriptoAlgorithms();
+    private CryptoAlgorithms cryptoAlgorithms = new CryptoAlgorithms();
     // исходящее сообщение
     private PrintWriter outMessage;
     // следующие поля отвечают за элементы формы
@@ -210,7 +210,7 @@ public class ClientWindow extends JFrame {
 
                                                if(nameTo.equalsIgnoreCase(clientName)) {
                                                    System.out.println("from:" + nameFrom + ", to:" + nameTo + ", msg:" + msg);
-                                                   String decodedMsg = kriptoAlgorithms.decode(msg, secretKeys.get(nameFrom));
+                                                   String decodedMsg = cryptoAlgorithms.decode(msg, secretKeys.get(nameFrom));
                                                    System.out.println(decodedMsg);
                                                    jtaTextAreaMessage.append(nameFrom + ":" + decodedMsg);
                                                    // добавляем строку перехода
@@ -262,7 +262,7 @@ public class ClientWindow extends JFrame {
     {
             String message = jtfMessage.getText();
             for (String key : secretKeys.keySet()) {
-                String secretMessage = kriptoAlgorithms.code(message, secretKeys.get(key));// for himself?
+                String secretMessage = cryptoAlgorithms.code(message, secretKeys.get(key));// for himself?
                 // формируем сообщение для отправки на сервер
                 String messageStr = "." + clientName + ":" + key + "->" + secretMessage;
                 outMessage.println(messageStr);

@@ -1,10 +1,8 @@
 import clientServer.Server;
-import kripthography.KriptoAlgorithms;
-
-import java.util.ArrayList;
+import cryptography.CryptoAlgorithms;
 
 public class Main {
-    private static KriptoAlgorithms kriptoAlgorithms = new KriptoAlgorithms();
+    private static CryptoAlgorithms cryptoAlgorithms = new CryptoAlgorithms();
     public static void main(String[] args)
     {
         Server server = new Server();

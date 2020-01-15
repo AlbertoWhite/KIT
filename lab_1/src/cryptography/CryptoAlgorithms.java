@@ -1,8 +1,8 @@
-package kripthography;
+package cryptography;
 
 import java.util.ArrayList;
 
-public class KriptoAlgorithms {
+public class CryptoAlgorithms {
 
     public static Long g = 2l;
     public static Long p = 30803l;
