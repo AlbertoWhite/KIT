@@ -1,6 +1,8 @@
 package kripthography;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class KriptoAlgorithms {
 
@@ -131,33 +133,6 @@ public class KriptoAlgorithms {
             return false;
         }
     }
-  /*   public String code(Long message, Long secretC)
-    {
-       Long k = 0l;
-        Long pM1 = p - 1;
-        String secretMessage = "";
-        Integer rand = getRandom(2l, pM1-2);
-        while (gcd(rand, Integer.parseInt(pM1.toString())) != 1)
-        {
-            rand = getRandom(2l, pM1);
-        }
-        k = Long.parseLong(rand.toString());
-        /*for (int i = 2; i < pM1; i ++)
-        {
-            if(gcd(i, Integer.parseInt(pM1.toString())) == 1)
-            {
-                k = new Long(i);
-                break;
-            }
-        }*/
-      /*  Long r = degreeByMod(g, k, p);
-        Long u = degreeByMod(message - secretC * r, 1l, p - 1);
-
-        ArrayList<Integer> gcdRes = gcdFull(Integer.parseInt(pM1.toString()), Integer.parseInt(k.toString()));
-        Long s = degreeByMod(degreeByMod((u * degreeByMod(Long.parseLong(gcdRes.get(2).toString()), 1l, p - 1)), 1l, p - 1), 1l, p - 1);
-        secretMessage = "<" + message + "," + r + "," + s + ">";
-        return secretMessage;
-    }*/
       public ArrayList<Long> calculateBigList(Long y, Long a, Long p, Long m)
       {
         ArrayList<Long> outputList = new ArrayList<>();
@@ -193,5 +168,168 @@ public class KriptoAlgorithms {
             }
         }
         return output;
+    }
+    public ArrayList<Integer> getPrimes(Integer count)
+    {
+        ArrayList<Integer> primes = new ArrayList<>();
+        if(count > 0)
+            primes.add(2);
+        for(int i = 3; primes.size() < count; i += 2)
+        {
+            if(isPrime(i, primes))
+                primes.add(i);
+        }
+        return primes;
+    }
+    public boolean isPrime(Integer n, List<Integer> primes)
+    {
+        double sqrt = Math.sqrt(n);
+        for (int i = 0; i < primes.size(); i ++)
+        {
+            Integer prime = primes.get(i);
+            if(prime > sqrt)
+                return true;
+            if(n % prime == 0)
+                return false;
+        }
+        return true;
+    }
+    private ArrayList<Integer> checkSmooth(Long param, ArrayList<Integer> s)
+    {
+        ArrayList<Integer> smooth = new ArrayList<>();
+        Long temp = param;
+        int index = 0;
+        int count = 0;
+        for(int i = 0; i < s.size(); i ++)
+            smooth.add(i, 0);
+        while(temp > 0) {
+            if (temp % s.get(index) == 0) {
+                System.out.print(" * " + s.get(index));
+                Integer tempSm = smooth.get(index);
+                //System.out.print(" [" + count + "]");
+                smooth.add(index,  tempSm + 1);
+
+                temp = temp / s.get(index);
+                count ++;
+                //System.out.print( "[" + count + "]");
+                //System.out.print(" (tmp:" + temp+") ");
+            } else {
+                smooth.add(index,  count);
+                //System.out.print( "[" + index+ ":" + count + "]");
+                count = 0;
+                index++;
+                if (index >= s.size())// not smooth
+                {
+                    if (temp > 1)
+                        return null;
+                    else
+                        return smooth;
+                }
+                //System.out.print(".");
+                //smooth.add(0);
+            }
+        }
+        return smooth;
+    }
+    public HashMap<Integer, ArrayList<Integer>> getSmoothList(Integer count, Long a, Long p, ArrayList<Integer> s)
+    {
+        HashMap<Integer, ArrayList<Integer>> smoothList = new HashMap<Integer,ArrayList<Integer>>();
+        Integer tempCount = 0;
+        Long k = 1l;
+        while(tempCount < count)
+        {
+            Long tempA = degreeByMod(a, k, p);
+            System.out.print(a + "^" + k + " mod" + p + " = " + tempA + "   := ");
+            ArrayList<Integer> smoothElem = checkSmooth(tempA, s);
+            System.out.println(" ");
+            if(smoothElem != null)
+            {
+                smoothList.put(Integer.parseInt(k.toString()), smoothElem);
+                tempCount ++;
+            }
+            k ++;
+            if(k > p)
+            {
+                break;
+            }
+        }
+        return smoothList;
+    }
+    public ArrayList<Integer> getLogList(HashMap<Integer,ArrayList<Integer>> smoothList, ArrayList<Integer> s, Long a)
+    {
+        //надо реализовать решение системы линейных уравнений
+        for (Integer k : smoothList.keySet()) {
+            System.out.print(k + " = " );
+            ArrayList<Integer> tempSmoothList = smoothList.get(k);
+            for (int i = 0; (i < tempSmoothList.size()) && (i < s.size()); i ++) {
+                Integer ci = tempSmoothList.get(i);
+                Integer tempS = s.get(i);
+                if(ci > 1) {
+                    if(i > 0)
+                        System.out.print(" + ");
+                    System.out.print("(" + ci + " * log " + a + " (" + tempS + "))");
+                }
+                if(ci == 1) {
+                    if(i > 0)
+                        System.out.print(" + ");
+                    System.out.print("(" + " log " + a + " (" + tempS + "))");
+                }
+            }
+            System.out.println(" ");
+        }
+        ArrayList<Integer> output = new ArrayList<>();
+        output.add(30);
+        output.add(18);
+        output.add(17);
+        return output;
+    }
+    public HashMap<Integer, ArrayList<Integer>> getSmoothList4(Long y, Long a, Long p, ArrayList<Integer> s)
+    {
+        HashMap<Integer, ArrayList<Integer>> smoothList = new HashMap<Integer,ArrayList<Integer>>();
+        Long r = getRandom(1l, p / 2);
+        //Long k = 1l;
+        boolean flag = false;
+        while(!flag)
+        {
+            Long tempA = degreeByMod( y * degreeByMod(a, r, p), 1l, p);
+            System.out.print(y + " * " + a + "^" + r + " mod" + p + " = " + tempA + "  := ");
+            ArrayList<Integer> smoothElem = checkSmooth(tempA, s);
+            System.out.println(" ");
+            if(smoothElem != null)
+            {
+                smoothList.put(Integer.parseInt(r.toString()), smoothElem);
+                break;
+            }
+            else
+            {
+                r = getRandom(1l, p - 1);
+            }
+        }
+        return smoothList;
+    }
+    public Long calculateX(HashMap<Integer, ArrayList<Integer>> smoothYA, ArrayList<Integer> logS, Long p, Long a, ArrayList<Integer> s)
+    {
+        Long x = 0l;
+        for (Integer r : smoothYA.keySet()) {
+            ArrayList<Integer> tempSmooth = smoothYA.get(r);
+            Integer tempSum = 0;
+            System.out.print("(" );
+            for(int i = 0; (i < tempSmooth.size()) && (i < s.size()); i ++)
+            {
+                if(i > 0)
+                    System.out.print(" + ");
+                Integer ei = tempSmooth.get(i);
+                Integer pi = s.get(i);
+                Integer temp = ei * logS.get(i);
+                Long tmpLong = degreeByMod(Long.parseLong(temp.toString()), 1l, p - 1);
+                tempSum += tmpLong.intValue();
+                System.out.print(ei + " * log " + a);
+                System.out.print("(" + pi + ")");
+            }
+            tempSum -= r;
+            x = degreeByMod(tempSum.longValue(), 1l, p - 1);
+            System.out.print(") - " + r + "mod " + (p - 1));
+        }
+        return x;
     }
 }
